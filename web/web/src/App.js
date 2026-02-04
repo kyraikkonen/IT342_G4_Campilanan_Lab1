@@ -1,17 +1,20 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { useState } from "react";
 import Login from "./Login";
 import Register from "./Register";
 import Dashboard from "./Dashboard";
 import "./App.css";
 
 function App() {
+  const [loggedInUser, setLoggedInUser] = useState(null);
+
   return (
     <>
       <div className="navbar">
         <Link to="/">Home</Link>
-        <Link to="/login">Login</Link>
-        <Link to="/register">Register</Link>
-        <Link to="/dashboard">Dashboard</Link>
+        {!loggedInUser && <Link to="/login">Login</Link>}
+        {!loggedInUser && <Link to="/register">Register</Link>}
+        {loggedInUser && <Link to="/dashboard">Dashboard</Link>}
       </div>
 
       <div className="container">
@@ -28,9 +31,36 @@ function App() {
               </div>
             }
           />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+
+          <Route
+            path="/login"
+            element={
+              loggedInUser ? (
+                <Navigate to="/dashboard" />
+              ) : (
+                <Login setLoggedInUser={setLoggedInUser} />
+              )
+            }
+          />
+
+          <Route
+            path="/register"
+            element={loggedInUser ? <Navigate to="/dashboard" /> : <Register />}
+          />
+
+          <Route
+            path="/dashboard"
+            element={
+              loggedInUser ? (
+                <Dashboard
+                  loggedInUser={loggedInUser}
+                  setLoggedInUser={setLoggedInUser}
+                />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
         </Routes>
       </div>
     </>
